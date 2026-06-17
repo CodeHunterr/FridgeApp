@@ -3,7 +3,7 @@
 ## Proje Kimliği
 - Bu klasör `FridgeApp` backend/API projesidir.
 - Teknoloji: ASP.NET Core Web API + Entity Framework Core.
-- Mevcut veritabanı sağlayıcısı SQL Server / MSSQL'dir.
+- Mevcut veritabanı sağlayıcısı PostgreSQL / Npgsql'dir.
 - Hedef production yönü: Neon PostgreSQL + Koyeb deploy.
 - Flutter mobil uygulama ayrı projedir: `fridge_app_mobile`.
 
@@ -31,10 +31,10 @@
 ## Korunması Gerekenler
 - Mevcut API davranışını kırma.
 - Mevcut mobil istemcinin kullandığı endpointleri keyfi olarak yeniden adlandırma.
-- SQL Server'dan PostgreSQL'e geçiş yapılana kadar sağlayıcıyı sessizce değiştirme.
+- Veritabanı sağlayıcısını kullanıcı açıkça istemedikçe sessizce değiştirme.
 - Kullanıcının istemediği kod temizliği/refactor turuna girme.
 
 ## Deploy Yönü
 - Kısa vadeli hedef: repo'yu GitHub'a temiz ve secrets'sız taşımak.
-- Sonraki hedef: `UseSqlServer` -> `UseNpgsql` geçişi.
+- Sonraki hedef: PostgreSQL initial migration üretimi ve Neon üzerinde smoke test.
 - Production hedefi: Koyeb üzerinde API deploy + Neon PostgreSQL.

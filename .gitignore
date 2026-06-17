@@ -3,6 +3,11 @@ obj/
 .vs/
 .codex-build-temp/
 .dotnet-home/
+.nuget-temp/
+.nuget-packages/
+.nuget-http-cache/
+.appdata/
+.localappdata/
 .idea/
 .vscode/*.user
 appsettings.Development.json
@@ -17,3 +22,6 @@ logs/
 *.log
 
 .config-tools/
+
+# Codex local task files
+CODEX_TASK_*.md

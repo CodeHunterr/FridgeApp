@@ -5,10 +5,10 @@ Bu dosya, backend projesini GitHub + Neon PostgreSQL + Koyeb hattına taşımak 
 ## 1. Mevcut durum özeti
 - Backend: ASP.NET Core Web API
 - ORM: EF Core
-- Şu anki provider: SQL Server
+- Şu anki provider: PostgreSQL / Npgsql
 - Hedef provider: PostgreSQL / Neon
 - Hedef deploy: Koyeb
-- Not: Repo içinde temizlenmesi gereken gerçek DB secret'ı var. Dokümana veya Git history'sine tekrar yazılmamalı.
+- Not: Repo içinde gerçek DB secret'ı olmamalı. Dokümana veya Git history'sine secret yazılmamalı.
 
 ## 2. GitHub'a hazırlık yapılacaklar
 - `appsettings.json` içindeki gerçek connection string'i temizle.
@@ -57,26 +57,20 @@ Not:
   - `ConnectionStrings__DefaultConnection=<Neon PostgreSQL connection string>`
 - Doküman, issue veya PR açıklamasında gerçek secret paylaşılmamalı.
 
-## 5. `Npgsql.EntityFrameworkCore.PostgreSQL` geçiş planı
-Yapılacaklar:
-1. `Npgsql.EntityFrameworkCore.PostgreSQL` paketini ekle.
-2. Gerekirse SQL Server provider paketini kaldır veya geçiş tamamlanana kadar kontrollü tut.
-3. Provider değişikliği sonrası migration stratejisini netleştir.
-4. Yeni provider ile temiz build al.
-5. Sıfırdan Postgres DB üzerinde migration smoke test yap.
+## 5. `Npgsql.EntityFrameworkCore.PostgreSQL` geçiş durumu
+- `Npgsql.EntityFrameworkCore.PostgreSQL` ana provider olarak kullanılmalıdır.
+- SQL Server provider production hedefinden çıkarılmıştır.
+- Yeni provider ile temiz build alınmalıdır.
+- Sıfırdan Postgres DB üzerinde migration smoke test yapılmalıdır.
 
 Not:
 - SQL Server provider ile üretilmiş migration'ların Neon üzerinde birebir sorunsuz çalışacağı varsayılmamalı.
 - En güvenli yaklaşım, provider geçişini ayrı bir kontrollü turda yapmak.
 
-## 6. `UseSqlServer` -> `UseNpgsql` geçiş planı
-Şu an:
-- `Program.cs` içinde `options.UseSqlServer(...)` kullanılıyor.
-
-Geçişte:
-- `UseSqlServer` çağrısı `UseNpgsql` olarak değişecek.
-- `ConnectionStrings:DefaultConnection` yapısı korunabilir.
-- Kod tarafında connection string anahtarı aynı kalırsa mobil/backend config katmanında daha az sürtünme olur.
+## 6. `UseNpgsql` bağlantı yapısı
+- `Program.cs` içinde `options.UseNpgsql(...)` kullanılmalıdır.
+- `ConnectionStrings:DefaultConnection` yapısı korunur.
+- Kod tarafında connection string anahtarı aynı kaldığı için mobil/backend config katmanında daha az sürtünme olur.
 
 Ek kontrol noktaları:
 - `DateTime` davranışları
