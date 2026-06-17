@@ -3,6 +3,8 @@ using FridgeApp.Interfaces;
 using FridgeApp.Services;
 using Microsoft.EntityFrameworkCore;
 
+const string CorsPolicyName = "FlutterWebLocalhostPolicy";
+
 var builder = WebApplication.CreateBuilder(args);
 
 if (!builder.Environment.IsDevelopment())
@@ -21,9 +23,19 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
-	options.AddPolicy("FrontendTestPolicy", policy =>
+	options.AddPolicy(CorsPolicyName, policy =>
 	{
-		policy.AllowAnyOrigin()
+		policy.SetIsOriginAllowed(origin =>
+			{
+				if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+				{
+					return false;
+				}
+
+				return uri.Scheme is "http" or "https" &&
+					(uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+					 uri.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase));
+			})
 			  .AllowAnyMethod()
 			  .AllowAnyHeader();
 	});
@@ -53,11 +65,12 @@ if (app.Environment.IsDevelopment())
 //	app.UseHttpsRedirection();
 //}
 
-app.UseCors("FrontendTestPolicy");
+app.UseCors(CorsPolicyName);
 
 app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+app.MapMethods("/{*path}", ["OPTIONS"], () => Results.Ok()).RequireCors(CorsPolicyName);
 
 app.MapControllers();
 
