@@ -55,13 +55,13 @@ namespace FridgeApp.Services
 				Name = itemName,
 				Quantity = request.Quantity,
 				Unit = unit,
-				ExpirationDate = request.ExpirationDate,
+				ExpirationDate = NormalizeExpirationDate(request.ExpirationDate),
 				TrackingType = trackingType,
 				ApproximateStatus = ApproximateItemStatus.Unknown,
 				ItemType = request.ItemType,
 				IsOpened = request.IsOpened,
 				IsDeleted = false,
-				AddedDate = DateTime.Now
+				AddedDate = DateTime.UtcNow
 			};
 
 			_context.Items.Add(item);
@@ -87,7 +87,7 @@ namespace FridgeApp.Services
 
 		public async Task<List<Item>> GetExpiringItemsAsync(int fridgeId, string filter)
 		{
-			var today = DateTime.Today;
+			var today = DateTime.UtcNow.Date;
 			var itemsQuery = _context.Items
 				.Where(item => item.FridgeId == fridgeId && !item.IsDeleted && item.ExpirationDate.HasValue)
 				.AsQueryable();
@@ -169,7 +169,7 @@ namespace FridgeApp.Services
 			{
 				item.Quantity = 0;
 				item.IsDeleted = true;
-				item.DeletedAt = DateTime.Now;
+				item.DeletedAt = DateTime.UtcNow;
 			}
 
 			await AddActivityLogAsync(
@@ -197,7 +197,7 @@ namespace FridgeApp.Services
 
 			item.Quantity = 0;
 			item.IsDeleted = true;
-			item.DeletedAt = DateTime.Now;
+			item.DeletedAt = DateTime.UtcNow;
 
 			if (item.TrackingType == TrackingType.Approximate)
 			{
@@ -228,7 +228,7 @@ namespace FridgeApp.Services
 			}
 
 			item.IsDeleted = true;
-			item.DeletedAt = DateTime.Now;
+			item.DeletedAt = DateTime.UtcNow;
 
 			await AddActivityLogAsync(
 				item.FridgeId,
@@ -265,10 +265,27 @@ namespace FridgeApp.Services
 				ActionType = actionType,
 				Quantity = quantity,
 				Unit = unit,
-				CreatedAt = DateTime.Now
+				CreatedAt = DateTime.UtcNow
 			};
 
 			_context.ItemActivityLogs.Add(log);
+		}
+
+		private static DateTime? NormalizeExpirationDate(DateTime? value)
+		{
+			if (!value.HasValue)
+			{
+				return null;
+			}
+
+			try
+			{
+				return DateTime.SpecifyKind(value.Value.Date, DateTimeKind.Utc);
+			}
+			catch (ArgumentOutOfRangeException exception)
+			{
+				throw new InvalidOperationException("Gecersiz son kullanma tarihi.", exception);
+			}
 		}
 	}
 }

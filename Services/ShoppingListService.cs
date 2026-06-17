@@ -32,7 +32,7 @@ namespace FridgeApp.Services
 				Name = request.Name.Trim(),
 				Source = string.IsNullOrWhiteSpace(request.Source) ? null : request.Source.Trim(),
 				IsCompleted = false,
-				CreatedAt = DateTime.Now
+				CreatedAt = DateTime.UtcNow
 			};
 
 			_context.ShoppingListItems.Add(item);

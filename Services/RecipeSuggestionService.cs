@@ -322,7 +322,7 @@ namespace FridgeApp.Services
 
 		public async Task<List<RecipeSuggestionResponse>> GetSuggestionsAsync(int fridgeId)
 		{
-			var today = DateTime.Today;
+			var today = DateTime.UtcNow.Date;
 
 			var availableNames = await _context.Items
 				.Where(item =>

@@ -21,7 +21,7 @@ namespace FridgeApp.Services
 			{
 				Email = userRequest.Email,
 				PasswordHash = userRequest.PasswordHash,
-				CreatedDate = DateTime.Now
+				CreatedDate = DateTime.UtcNow
 			};
 
 			_context.Users.Add(user);

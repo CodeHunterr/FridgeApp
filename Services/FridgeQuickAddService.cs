@@ -120,7 +120,7 @@ namespace FridgeApp.Services
 				TrackingType = trackingType.Value,
 				QuickAmounts = SerializeQuickAmounts(quickAmounts),
 				IsActive = true,
-				CreatedAt = DateTime.Now,
+				CreatedAt = DateTime.UtcNow,
 				SortOrder = nextSortOrder + 1
 			};
 

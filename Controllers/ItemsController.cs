@@ -3,6 +3,7 @@ using FridgeApp.Enums;
 using FridgeApp.Interfaces;
 using FridgeApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FridgeApp.Controllers
 {
@@ -49,6 +50,12 @@ namespace FridgeApp.Controllers
 			catch (InvalidOperationException exception)
 			{
 				return BadRequest(new { message = exception.Message });
+			}
+			catch (DbUpdateException exception) when (
+				exception.InnerException is ArgumentException argumentException &&
+				argumentException.Message.Contains("DateTime", StringComparison.OrdinalIgnoreCase))
+			{
+				return BadRequest(new { message = "Gecersiz tarih degeri. Son kullanma tarihi takvim gunu olarak gonderilmelidir." });
 			}
 		}
 
