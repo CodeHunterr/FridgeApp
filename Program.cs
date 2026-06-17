@@ -5,6 +5,17 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (!builder.Environment.IsDevelopment())
+{
+	var port = Environment.GetEnvironmentVariable("PORT");
+	if (string.IsNullOrWhiteSpace(port))
+	{
+		port = "8080";
+	}
+
+	builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -45,6 +56,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors("FrontendTestPolicy");
 
 app.UseAuthorization();
+
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 app.MapControllers();
 

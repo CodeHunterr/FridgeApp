@@ -98,31 +98,34 @@ Ek not:
 - Neon console'un ürettiği string baz alınmalı.
 - SSL/TLS parametreleri korunmalı.
 
-## 8. Dockerfile planı
-Bu repo için öneri:
+## 8. Dockerfile durumu
 - Koyeb'e Dockerfile ile deploy etmek en güvenli yol.
+- `Dockerfile` repo/proje kökünde bulunur.
+- `.dockerignore` gereksiz build, temp ve secret dosyalarını image dışında bırakır.
 
 Sebep:
 - Koyeb git build dokümantasyonunda yerleşik dil akışları var.
 - `.NET` için Dockerfile tabanlı deploy daha deterministik olur.
 
-Önerilen Docker yaklaşımı:
+Docker yaklaşımı:
 - multi-stage build
 - `mcr.microsoft.com/dotnet/sdk:9.0` ile build/publish
 - `mcr.microsoft.com/dotnet/aspnet:9.0` ile runtime
-- çalışma portu sabit olsun
+- container içinde varsayılan port `8080`
 - container içinde `FridgeApp.dll` ayağa kalksın
 
 Port planı:
-- `8000` gibi sabit bir port seç
-- `ASPNETCORE_URLS=http://0.0.0.0:8000`
-- Koyeb exposed port olarak aynı portu kullan
+- Production ortamında uygulama `PORT` env variable'ı varsa onu kullanır.
+- `PORT` yoksa `8080` default olarak kullanılır.
+- Koyeb container port: `8080`
 
 ## 9. Koyeb env variable listesi
 Başlangıç için yeterli olabilecek env'ler:
 - `ASPNETCORE_ENVIRONMENT=Production`
-- `ASPNETCORE_URLS=http://0.0.0.0:8000`
 - `ConnectionStrings__DefaultConnection=<Neon runtime connection string>`
+
+Opsiyonel port ayarı:
+- `PORT=8080`
 
 Opsiyonel log ayarları:
 - `Logging__LogLevel__Default=Information`
@@ -130,23 +133,13 @@ Opsiyonel log ayarları:
 
 Not:
 - Koyeb web service'lerde `PORT` env'i otomatik tanımlayabiliyor.
-- Buna bağımlı dinamik çözüm de kurulabilir.
-- Bu repo için ilk deploy'da sabit port yaklaşımı daha sade olur.
+- Neon connection string Koyeb paneline secret/env olarak girilmeli; GitHub'a, `appsettings` dosyalarına veya `Dockerfile` içine yazılmamalı.
 
-## 10. Health check endpoint planı
-Şu an:
-- Ayrı bir `/health` endpoint yok.
-- Koyeb varsayılan TCP health check ile ilk aşamada ayağa kaldırabilir.
-
-Öneri:
-- Deploy öncesi veya hemen sonrasında bir HTTP health endpoint ekle:
-  - `/health`
-  - veya `/api/health`
-- Sonra Koyeb health check'i HTTP path bazlı yapılandır.
-
-Minimum beklenti:
-- `200 OK`
-- DB bağımlı olmayan hafif bir cevap
+## 10. Health check endpoint durumu
+- `GET /health` endpoint'i vardır.
+- `200 OK` ve `{ "status": "ok" }` döndürür.
+- DB bağımlı değildir; Neon bağlantısı kopuk olsa bile container ayakta mı kontrolü için kullanılabilir.
+- Koyeb health check path: `/health`
 
 ## 11. `dotnet build` / `dotnet ef database update` komutları
 
@@ -188,7 +181,19 @@ Swagger production'da şu an açık olmayabilir, bu yüzden smoke test raw endpo
 13. `GET /api/fridges/{fridgeId}/quick-add-items`
 14. `POST /api/fridges/{fridgeId}/quick-add-items`
 
-## 13. Deploy öncesi ek kontrol notları
+## 13. Local Docker test örneği
+```powershell
+docker build -t fridgeapp-api .
+```
+
+```powershell
+docker run --rm -p 8080:8080 `
+  -e ASPNETCORE_ENVIRONMENT=Production `
+  -e ConnectionStrings__DefaultConnection="YOUR_NEON_CONNECTION_STRING" `
+  fridgeapp-api
+```
+
+## 14. Deploy öncesi ek kontrol notları
 - `UseHttpsRedirection()` şu an kapalı. Production davranışı ayrıca değerlendirilmelidir.
 - CORS şu an çok geniş açık. Mobil uygulama netleştiğinde kısıtlanması planlanmalı.
 - Auth yok. Production'a çıkmadan önce risk kabulü net olmalı.
