@@ -1,143 +1,40 @@
-# FRIDGE APP – BACKEND CONTEXT (ASP.NET CORE)
+﻿# AGENTS.md
 
-## 🎯 PROJECT GOAL
+## Proje Kimliği
+- Bu klasör `FridgeApp` backend/API projesidir.
+- Teknoloji: ASP.NET Core Web API + Entity Framework Core.
+- Mevcut veritabanı sağlayıcısı SQL Server / MSSQL'dir.
+- Hedef production yönü: Neon PostgreSQL + Koyeb deploy.
+- Flutter mobil uygulama ayrı projedir: `fridge_app_mobile`.
 
-This project is an ASP.NET Core Web API for managing fridge contents.
+## Temel Çalışma Kuralları
+- Büyük refactor yapma. Mevcut yapıyı adım adım geliştir.
+- Mevcut endpoint route'larını, request shape'lerini ve temel response davranışını kullanıcı açıkça istemedikçe bozma.
+- Kod ile doküman çelişirse önce kodu doğrula; doküman yardımcı bağlamdır.
+- Mevcut controller -> service -> AppDbContext akışını gereksiz yere yeniden kurma.
+- Gereksiz abstraction, generic repository veya büyük mimari sıçrama ekleme.
 
-Users can:
-- Create fridges
-- Add items into fridges
-- Track quantities and expiration dates
+## Secrets ve Config
+- Gerçek connection string, şifre, token, API key, server IP veya local ağ bilgisini Git'e yazma.
+- Config dosyasında gerçek secret görürsen değeri tekrar yazma; sadece temizlenmesi gerektiğini raporla.
+- Production secret'ları environment variable / secret store üzerinden yönet.
 
-This backend will be consumed by a mobile app (Flutter or React Native).
+## Build ve Raporlama
+- Kod değişikliğinden sonra `dotnet build` çalıştır.
+- Migration veya veritabanı şeması değiştirirsen final yanıtta açıkça şunları yaz:
+  - hangi dosyalar değişti
+  - hangi migration oluştu veya güncellendi
+  - hangi komutun çalıştırılması gerektiği
+  - veritabanına uygulanıp uygulanmadığı
+- Davranış değiştiren riskleri ve mevcut uyumluluk etkilerini saklama.
 
----
+## Korunması Gerekenler
+- Mevcut API davranışını kırma.
+- Mevcut mobil istemcinin kullandığı endpointleri keyfi olarak yeniden adlandırma.
+- SQL Server'dan PostgreSQL'e geçiş yapılana kadar sağlayıcıyı sessizce değiştirme.
+- Kullanıcının istemediği kod temizliği/refactor turuna girme.
 
-## 🧱 CURRENT ARCHITECTURE
-
-Layers:
-- Controllers (API endpoints)
-- Entities (database models)
-- Models (request DTOs)
-- Data (DbContext)
-
-Currently:
-- Controllers directly use DbContext
-- No service layer yet
-
----
-
-## 🗄️ DATABASE STRUCTURE
-
-### Users
-- Id
-- Email
-- PasswordHash
-- CreatedDate
-
-### Fridges
-- Id
-- UserId
-- Name
-
-### Items
-- Id
-- FridgeId
-- Name
-- Quantity
-- Unit
-- ExpirationDate
-- AddedDate
-
----
-
-## 🔗 RELATIONSHIPS
-
-- 1 User → N Fridges
-- 1 Fridge → N Items
-
----
-
-## ⚙️ TECH STACK
-
-- ASP.NET Core Web API
-- Entity Framework Core
-- SQL Server
-- Swagger
-
----
-
-## ⚠️ IMPORTANT CURRENT LIMITATION
-
-- UserId and FridgeId are sent manually in requests
-- Authentication is NOT implemented yet
-
----
-
-## 🚀 CURRENT GOAL (VERY IMPORTANT)
-
-We are now upgrading to a professional backend architecture.
-
-FIRST STEP:
-➡️ Implement Service Layer
-
-Requirements:
-- Add Interfaces folder
-- Add Services folder
-- Create IFridgeService and FridgeService
-- Move business logic from Controller to Service
-- Use Dependency Injection
-
----
-
-## 📌 CODING RULES
-
-- Follow clean architecture principles
-- Keep it SIMPLE (no over-engineering)
-- Avoid unnecessary abstractions
-- Write readable and maintainable code
-- Use async/await properly
-- Do NOT break existing functionality
-
----
-
-## ❗ IMPORTANT INSTRUCTION FOR AI
-
-Before writing code:
-1. Analyze the current project structure
-2. Follow existing naming conventions
-3. Do not rewrite the entire project
-4. Make incremental changes only
-
----
-
-## 🎯 NEXT STEPS (ORDER)
-
-1. FridgeService implementation
-2. Controller refactor
-3. ItemService
-4. UserService
-5. JWT Authentication
-6. Validation
-7. Exception handling
-
----
-
-## ☁️ CLOUD MIGRATION PLAN
-
-We are preparing this project for cloud deployment.
-
-Goals:
-1. Move SQL Server database to Azure SQL
-2. Update API to use Azure SQL
-3. Containerize the API
-4. Deploy API to Azure Container Apps
-
-Important:
-- Do not break existing functionality
-- Make minimal safe changes
-- Always explain changes in Turkish
-- Focus on step-by-step migration
-
-Current phase:
-➡️ Database migration preparation
+## Deploy Yönü
+- Kısa vadeli hedef: repo'yu GitHub'a temiz ve secrets'sız taşımak.
+- Sonraki hedef: `UseSqlServer` -> `UseNpgsql` geçişi.
+- Production hedefi: Koyeb üzerinde API deploy + Neon PostgreSQL.
