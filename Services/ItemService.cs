@@ -61,7 +61,7 @@ namespace FridgeApp.Services
 				ItemType = request.ItemType,
 				IsOpened = request.IsOpened,
 				IsDeleted = false,
-				AddedDate = DateTime.UtcNow
+				AddedDate = NormalizeUtcTimestamp(DateTime.UtcNow)
 			};
 
 			_context.Items.Add(item);
@@ -169,7 +169,7 @@ namespace FridgeApp.Services
 			{
 				item.Quantity = 0;
 				item.IsDeleted = true;
-				item.DeletedAt = DateTime.UtcNow;
+				item.DeletedAt = NormalizeUtcTimestamp(DateTime.UtcNow);
 			}
 
 			await AddActivityLogAsync(
@@ -197,7 +197,7 @@ namespace FridgeApp.Services
 
 			item.Quantity = 0;
 			item.IsDeleted = true;
-			item.DeletedAt = DateTime.UtcNow;
+			item.DeletedAt = NormalizeUtcTimestamp(DateTime.UtcNow);
 
 			if (item.TrackingType == TrackingType.Approximate)
 			{
@@ -228,7 +228,7 @@ namespace FridgeApp.Services
 			}
 
 			item.IsDeleted = true;
-			item.DeletedAt = DateTime.UtcNow;
+			item.DeletedAt = NormalizeUtcTimestamp(DateTime.UtcNow);
 
 			await AddActivityLogAsync(
 				item.FridgeId,
@@ -265,7 +265,7 @@ namespace FridgeApp.Services
 				ActionType = actionType,
 				Quantity = quantity,
 				Unit = unit,
-				CreatedAt = DateTime.UtcNow
+				CreatedAt = NormalizeUtcTimestamp(DateTime.UtcNow)
 			};
 
 			_context.ItemActivityLogs.Add(log);
@@ -286,6 +286,16 @@ namespace FridgeApp.Services
 			{
 				throw new InvalidOperationException("Gecersiz son kullanma tarihi.", exception);
 			}
+		}
+
+		private static DateTime NormalizeUtcTimestamp(DateTime value)
+		{
+			return value.Kind switch
+			{
+				DateTimeKind.Utc => value,
+				DateTimeKind.Local => value.ToUniversalTime(),
+				_ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+			};
 		}
 	}
 }
