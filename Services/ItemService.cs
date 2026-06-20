@@ -98,10 +98,13 @@ namespace FridgeApp.Services
 				"next3days" => itemsQuery.Where(item =>
 					item.ExpirationDate!.Value.Date >= today &&
 					item.ExpirationDate.Value.Date <= today.AddDays(3)),
+				"next4days" => itemsQuery.Where(item =>
+					item.ExpirationDate!.Value.Date >= today &&
+					item.ExpirationDate.Value.Date <= today.AddDays(4)),
 				"next7days" => itemsQuery.Where(item =>
 					item.ExpirationDate!.Value.Date >= today &&
 					item.ExpirationDate.Value.Date <= today.AddDays(7)),
-				_ => throw new InvalidOperationException("Gecersiz filtre. expired, next3Days veya next7Days kullanin.")
+				_ => throw new InvalidOperationException("Gecersiz filtre. expired, next3Days, next4Days veya next7Days kullanin.")
 			};
 
 			return await itemsQuery
