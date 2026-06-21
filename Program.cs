@@ -51,6 +51,7 @@ builder.Services.AddScoped<IProductCatalogService, ProductCatalogService>();
 builder.Services.AddScoped<IFridgeQuickAddService, FridgeQuickAddService>();
 builder.Services.AddScoped<IRecipeSuggestionService, RecipeSuggestionService>();
 builder.Services.AddScoped<IShoppingListService, ShoppingListService>();
+builder.Services.AddScoped<IDemoBootstrapService, DemoBootstrapService>();
 
 var app = builder.Build();
 

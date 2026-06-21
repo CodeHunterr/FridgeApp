@@ -22,6 +22,18 @@ namespace FridgeApp.Data
 		{
 			base.OnModelCreating(modelBuilder);
 
+			modelBuilder.Entity<User>()
+				.Property(user => user.DisplayName)
+				.HasMaxLength(50);
+
+			modelBuilder.Entity<User>()
+				.Property(user => user.InstallId)
+				.HasMaxLength(120);
+
+			modelBuilder.Entity<User>()
+				.HasIndex(user => user.InstallId)
+				.IsUnique();
+
 			modelBuilder.Entity<FridgeQuickAddItem>()
 				.HasOne<Fridge>()
 				.WithMany()
